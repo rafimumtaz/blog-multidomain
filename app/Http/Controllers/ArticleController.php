@@ -40,8 +40,7 @@ class ArticleController extends Controller
             'content' => $request->content,
         ]);
 
-        return redirect()->route('articles.index', ['institution' => $GLOBALS['institution']->domain])
-                         ->with('success', 'Artikel berhasil ditambahkan!');
+        return redirect()->route('articles.index', ['institution' => $GLOBALS['institution']->domain]);
     }
 
     /**
