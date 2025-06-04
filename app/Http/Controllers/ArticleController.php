@@ -57,8 +57,8 @@ class ArticleController extends Controller
             'content' => $request->content,
         ]);
 
-        return redirect()->route('articles.index', ['institution' => $institution->subdomain])
-                         ->with('success', 'Artikel berhasil dibuat!');
+        return redirect()->route('articles.index', ['institution' => $institution])
+                     ->with('success', 'Artikel berhasil dibuat!');
     }
 
     public function show($institution, $id)
