@@ -19,18 +19,24 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void{
+    public function boot(): void
+    {
         if (app()->runningInConsole()) return;
 
-        $host = request()->getHost(); 
-        $subdomain = explode('.', $host)[0]; // ambil 'univ-a'
+        $host = request()->getHost();
+        $subdomain = explode('.', $host)[0];
 
         $institution = Institution::where('domain', $host)->firstOrFail();
 
-        $institution->subdomain = $subdomain;
+        if (!$institution) {
+            abort(404, 'Institution not found');
+        }
+
+        // $institution->subdomain = $subdomain;
 
         View::share('institution', $institution);
         $GLOBALS['institution'] = $institution;
     }
+
 
 }

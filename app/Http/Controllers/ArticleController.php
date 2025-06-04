@@ -3,73 +3,89 @@
 namespace App\Http\Controllers;
 
 use App\Models\Article;
+use App\Models\Institution;
 use Illuminate\Http\Request;
 
 class ArticleController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    // Fungsi helper untuk dapatkan institution dan article sekaligus
+    private function findInstitution($institution)
     {
-        $articles = Article::where('institution_id', $GLOBALS['institution']->id)->get();
-        return view('articles.index', compact('articles'));
+        return Institution::where('domain', $institution . '.localhost')->firstOrFail();
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    private function findArticle($institution, $id)
     {
-        return view('articles.create');
+        $institutionModel = $this->findInstitution($institution);
+        return Article::where('institution_id', $institutionModel->id)
+                      ->where('id', $id)
+                      ->firstOrFail();
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function index($institution)
     {
+        $institutionModel = $this->findInstitution($institution);
+        $articles = Article::where('institution_id', $institutionModel->id)->get();
+
+        return view('articles.index', [
+            'articles' => $articles,
+            'institution' => $institutionModel
+        ]);
+    }   
+
+    public function create($institution)
+    {
+        $institutionModel = $this->findInstitution($institution);
+
+        return view('articles.create', [
+            'institution' => $institutionModel
+        ]);
+    }
+
+    public function store(Request $request, $institution)
+    {
+        $institutionModel = $this->findInstitution($institution);
+
         $request->validate([
             'title' => 'required',
             'content' => 'required',
         ]);
 
         Article::create([
-            'institution_id' => $GLOBALS['institution']->id,
+            'institution_id' => $institutionModel->id,
             'title' => $request->title,
             'content' => $request->content,
         ]);
 
-        return redirect()->route('articles.index', ['institution' => $GLOBALS['institution']->domain]);
+        return redirect()->route('articles.index', ['institution' => $institution->subdomain])
+                         ->with('success', 'Artikel berhasil dibuat!');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show($institution, $id)
     {
-        $article = Article::findOrFail($id);
-        $this->authorizeInstitution($article);
-        return view('articles.show', compact('article'));
+        $article = $this->findArticle($institution, $id);
+        $institutionModel = $this->findInstitution($institution);
+
+        return view('articles.show', [
+            'article' => $article,
+            'institution' => $institutionModel,
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
+    public function edit($institution, $id)
     {
-        $article = Article::findOrFail($id);
-        $this->authorizeInstitution($article);
-        return view('articles.edit', compact('article'));
+        $article = $this->findArticle($institution, $id);
+        $institutionModel = $this->findInstitution($institution);
+
+        return view('articles.edit', [
+            'article' => $article,
+            'institution' => $institutionModel,
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $institution, $id)
     {
-        $article = Article::findOrFail($id);
-        $this->authorizeInstitution($article);
+        $article = $this->findArticle($institution, $id);
 
         $request->validate([
             'title' => 'required',
@@ -78,27 +94,16 @@ class ArticleController extends Controller
 
         $article->update($request->only('title', 'content'));
 
-        return redirect()->route('articles.index', ['institution' => $GLOBALS['institution']->domain])
+        return redirect()->route('articles.index', ['institution' => $institution])
                          ->with('success', 'Artikel berhasil diperbarui!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy($institution, $id)
     {
-        $article = Article::findOrFail($id);
-        $this->authorizeInstitution($article);
+        $article = $this->findArticle($institution, $id);
         $article->delete();
 
-        return redirect()->route('articles.index', ['institution' => $GLOBALS['institution']->domain])
+        return redirect()->route('articles.index', ['institution' => $institution])
                          ->with('success', 'Artikel berhasil dihapus!');
-    }
-
-    private function authorizeInstitution(Article $article)
-    {
-        if ($article->institution_id !== $GLOBALS['institution']->id) {
-            abort(403, 'Akses ditolak.');
-        }
     }
 }

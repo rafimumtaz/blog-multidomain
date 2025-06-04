@@ -9,7 +9,7 @@
            style="display: inline-block; background-color: #38c172; color: white; padding: 10px 16px; border-radius: 6px; text-decoration: none; font-weight: bold;">
            + Tambah Artikel
         </a>
-    </div>
+    </div>  
 
     @if($articles->isEmpty())
         <p style="color: #888;">Belum ada artikel.</p>
