@@ -18,7 +18,14 @@ class Institution extends Model
     public function getSubdomainAttribute()
     {
         $host = request()->getHost();
-        $subdomain = explode('.', $host)[0];
-        return $subdomain;
+        if (str_contains($host, '.')) {
+            return explode('.', $host)[0];
+        }
+        return null; // atau handle kasus domain utama
+    }
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
     }
 }

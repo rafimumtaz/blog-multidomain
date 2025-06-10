@@ -27,7 +27,13 @@
                                style="margin-right: 10px; color: #3490dc; text-decoration: none;">Lihat</a>
 
                             <a href="{{ route('articles.edit', ['institution' => $institution->subdomain, 'article' => $article->id]) }}"
-                               style="color: #ff9800; text-decoration: none;">Edit</a>
+                               style="margin-right: 10px; color: #ff9800; text-decoration: none;">Edit</a>
+                            
+                            <form action="{{ route('articles.destroy', ['institution' => $institution->subdomain, 'article' => $article->id]) }}" method="POST" style="display:inline;" onsubmit="return confirm('Apakah Anda yakin ingin menghapus artikel ini?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" style="color: #e53e3e; text-decoration: none; background: none; border: none; cursor: pointer; padding: 0;">Hapus</button>
+                            </form>
                         </div>
                     </div>
                 </li>
