@@ -27,4 +27,7 @@ Route::domain('{institution}.localhost')->middleware('auth')->group(function () 
     });
     
     Route::resource('articles', ArticleController::class)->middleware('check.institution');
+    Route::get('/chat', [App\Http\Controllers\ChatController::class, 'index'])->name('chat.index');
+    Route::get('/messages', [App\Http\Controllers\ChatController::class, 'fetchMessages'])->name('chat.fetch');
+    Route::post('/messages', [App\Http\Controllers\ChatController::class, 'sendMessage'])->name('chat.send');
 });

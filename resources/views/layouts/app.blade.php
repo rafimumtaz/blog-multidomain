@@ -34,6 +34,11 @@
                                     Selamat Datang, {{ Auth::user()->name }}
                                 </a>
                             </li>
+                        @auth
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('chat.index', ['institution' => Auth::user()->institution->subdomain]) }}">Chatroom</a>
+                            </li>
+                        @endauth
                             <li class="nav-item">
                                  <a class="nav-link" href="{{ route('logout') }}"
                                    onclick="event.preventDefault();
